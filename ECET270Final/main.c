@@ -5,8 +5,16 @@
  * Author : jkulick
  */ 
 
+//Hardware for 2560 and 328
+//								ATMEGA 2560		ATMEGA 328		Pins (2560)		Pins (328)
+//Keyfob Data Lines	1-4			PORTB 0..3		PORTB 0..3		D53..50			14..17
+//Interrupt 0					PORTD0			PORTD2			D21				4
+
+
 //inclusions
 #include <avr/io.h>
+#include <util/delay.h>
+#include "interrupt.h"
 
 //Definitions
 
@@ -16,21 +24,30 @@ volatile uint8_t ClearHolds; //(empty, Autonomous E brake, empty, Backup/ Rear C
 
 //Function Prototypes
 void Receiver_ModeReturn(uint8_t RecieverInput); //Reciever Input is D1..D4. Exclude VT (interrupt pin)
+void init_ports(void);
 
 int main(void)
 {
+	init_ports();
+	init_interrupt();
     /* Replace with your application code */
     while (1) 
     {
-	
+		PORTC = EnableTracker; //set PORTC to EnableTracker so we can tell what is on and what isn't
     }
+}
+void init_ports(void){
+	DDRB = 0x00;	//set PORTB to inputs
+	PORTB = 0xFF;	//turn pullup resistors on
+	DDRC = 0xFF;	//set PORTC to outputs so we can test EnableTracker on LEDs
+	PORTC = 0x00;	// turn them off to start
 }
 
 void Receiver_ModeReturn(uint8_t RecieverInput)
 {
 	switch (RecieverInput)
     {
-        case 1 : //IR Speed Controller
+    case 1 : //IR Speed Controller
 					
                 EnableTracker ^= 1 << 7; //Toggle IR Speed enable bit
                 break;
