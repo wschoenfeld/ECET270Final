@@ -15,6 +15,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "interrupt.h"
+#include "ir_speed_ctrl.h"
 
 //Definitions
 
@@ -30,6 +31,10 @@ int main(void)
 {
 	init_ports();
 	init_interrupt();
+	
+	init_timer1_freq();
+	init_mode8_pwm();
+	
     /* Replace with your application code */
     while (1) 
     {
@@ -41,6 +46,8 @@ void init_ports(void){
 	PORTB = 0xFF;	//turn pullup resistors on
 	DDRC = 0xFF;	//set PORTC to outputs so we can test EnableTracker on LEDs
 	PORTC = 0x00;	// turn them off to start
+	DDRA = 0x00; // Port A as input from switches & push-buttons.
+	PORTA = 0xFF; // Activate all pull-up resistors.
 }
 
 void Receiver_ModeReturn(uint8_t RecieverInput)
