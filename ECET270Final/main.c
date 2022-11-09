@@ -43,7 +43,7 @@ int main(void)
     /* Replace with your application code */
     while (1) 
     {
-		
+		uint8_t temp = PINL;
 				EnableTracker,ClearHolds = Receiver_ModeReturn(temp,EnableTracker,ClearHolds);
 		_delay_ms(100);
 		//PORTC = EnableTracker; //set PORTC to EnableTracker so we can tell what is on and what isn't
