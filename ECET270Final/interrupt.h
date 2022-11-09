@@ -7,9 +7,12 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-
+#include <avr/interrupt.h>
 #ifndef INTERRUPT_H_
 #define INTERRUPT_H_
+
+//Definitions
+#define F_CPU 16000000UL
 
 void init_interrupt(void);
 

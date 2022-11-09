@@ -9,7 +9,7 @@ Operations: Header file for "ir_speed_ctlr.c" file.
 */
 
 // Global Declarations & Libraries
-#define F_CPU 16000000L
+#define F_CPU 16000000UL
 #include <avr/io.h>
 #include <stdio.h>
 #include <util/delay.h>
