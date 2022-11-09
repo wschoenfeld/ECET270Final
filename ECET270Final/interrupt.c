@@ -12,8 +12,7 @@ void init_interrupt(void)
 //runs when INTF0 is set
 ISR(INT0_vect)
 {
-	_delay_ms(10); // delay is used so we can tell when two buttons are being pressed
-	uint8_t mode_temp = 0;
+	/*uint8_t mode_temp = 0;
 	if(PINB == 0x02){	//If button A is on
 		mode_temp = 1;
 	}
@@ -31,7 +30,8 @@ ISR(INT0_vect)
 	}
 	else if(PINB == 0x11){
 		mode_temp = 6;
-	}
+	}*/
 	
-	Receiver_ModeReturn(mode_temp);
+	Receiver_ModeReturn(PINL);
+	
 }
