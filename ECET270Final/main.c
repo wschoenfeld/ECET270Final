@@ -27,7 +27,7 @@
 //volatile uint8_t ClearHolds; //(empty, Autonomous E brake, empty, Backup/ Rear Collision Avoidance, empty, empty, empty, empty)
 
 //Function Prototypes
-uint8_t Receiver_ModeReturn(uint8_t RecieverInput,uint8_t EnableTracker,uint8_t ClearHolds); //Reciever Input is D1..D4. Exclude VT (interrupt pin)
+uint8_t* Receiver_ModeReturn(uint8_t RecieverInput,uint8_t EnableTracker,uint8_t ClearHolds); //Reciever Input is D1..D4. Exclude VT (interrupt pin)
 void init_ports(void);
 
 int main(void)
@@ -39,14 +39,15 @@ int main(void)
 	init_mode8_pwm();
 	uint8_t EnableTracker; //(IR Speed Controller, Autonomous E brake, Adaptive Cruise, Backup/ Rear Collision Avoidance, BlindSpot Detection, Anti-Roller, Automatic Parallel Parking, empty)
 	uint8_t ClearHolds; //(empty, Autonomous E brake, empty, Backup/ Rear Collision Avoidance, empty, empty, empty, empty)
-	uint8_t temp = PINL;
-    /* Replace with your application code */
+	uint8_t *ReturnArray; //Holds the pointer for the returned aray 
     while (1) 
     {
-		
-				EnableTracker,ClearHolds = Receiver_ModeReturn(temp,EnableTracker,ClearHolds);
-		_delay_ms(100);
-		//PORTC = EnableTracker; //set PORTC to EnableTracker so we can tell what is on and what isn't
+		uint8_t temp = PINL; //Set temp to PINL
+		ReturnArray = Receiver_ModeReturn(temp,EnableTracker,ClearHolds);
+		//EnableTracker = *(ReturnArray + 0);
+		//ClearHolds = *(ReturnArray + 1);
+		//You will see this clear and not hold the array value, it clear for some reason
+		PORTC = *(ReturnArray + 0); //set PORTC to EnableTracker so we can tell what is on and what isn't
     }
 }
 void init_ports(void){
@@ -58,42 +59,44 @@ void init_ports(void){
 	PORTA = 0xFF; // Activate all pull-up resistors.
 }
 
-uint8_t Receiver_ModeReturn(uint8_t RecieverInput,uint8_t EnableTracker,uint8_t ClearHolds)
+uint8_t* Receiver_ModeReturn(uint8_t RecieverInput,uint8_t EnableTracker,uint8_t ClearHolds)
 {
-	//PORTC = 0;
-	PORTC = RecieverInput;
-	
-// 	switch (RecieverInput)
-//     {
-// 		
-//     case 1 : //IR Speed Controller
-// 					
-//                 EnableTracker ^= 1 << 7; //Toggle IR Speed enable bit
-//                 break;
-// 	case 2 : //Autonomous E Brake
-// 			if (ClearHolds & (1 << 6)) //If Autonomous E Brake was activated clear it
-// 				ClearHolds ^= 1 << 6; //Clear hold
-// 			else //if break wasn't engaged
-// 				EnableTracker ^= 1 << 6; //Toggle Autonomous E Brake enable bit
-// 			break;
-// 	case 3 : //Adaptive Cruise
-// 			EnableTracker ^= 1 << 5; //Toggle Adaptive Cruise enable bit
-// 			break;
-// 	case 4 : //Backup/ Rear Collision Avoidance
-// 			if (ClearHolds & (1 << 4)) //If Backup/ Rear Collision Avoidance was activated clear it
-// 				ClearHolds ^= 1 << 4; //Clear hold
-// 			else //if Backup/ Rear Collision Avoidance wasn't engaged
-// 				EnableTracker ^= 1 << 4; //Toggle Backup/ Rear Collision Avoidance enable bit
-// 			break;
-// 	case 5 : //BlindSpot Detection
-// 			EnableTracker ^= 1 << 3; //Toggle BlindSpot Detection enable bit
-// 			break;
-// 	case 6 : //Anti-Roller
-// 			EnableTracker ^= 1 << 2; //Toggle Anti-Roller enable bit
-// 			break;
-// 	case 7 : //Automatic Parallel Parking
-// 			EnableTracker ^= 1 << 1; //Toggle Automatic Parallel Parking enable bit
-// 			break;
-//     }
- 	return(EnableTracker,ClearHolds);
+	//PORTC = RecieverInput;
+ 	switch (RecieverInput)
+     {
+ 		
+		case 1 : //IR Speed Controller
+					
+				EnableTracker ^= 1 << 7; //Toggle IR Speed enable bit
+				break;
+ 		case 2 : //Autonomous E Brake
+ 				if (ClearHolds & (1 << 6)) //If Autonomous E Brake was activated clear it
+ 					ClearHolds ^= 1 << 6; //Clear hold
+ 				else //if break wasn't engaged
+ 					EnableTracker ^= 1 << 6; //Toggle Autonomous E Brake enable bit
+ 				break;
+ 		case 3 : //Adaptive Cruise
+ 				EnableTracker ^= 1 << 5; //Toggle Adaptive Cruise enable bit
+ 				break;
+ 		case 4 : //Backup/ Rear Collision Avoidance
+ 				if (ClearHolds & (1 << 4)) //If Backup/ Rear Collision Avoidance was activated clear it
+ 					ClearHolds ^= 1 << 4; //Clear hold
+ 				else //if Backup/ Rear Collision Avoidance wasn't engaged
+ 					EnableTracker ^= 1 << 4; //Toggle Backup/ Rear Collision Avoidance enable bit
+ 				break;
+ 		case 5 : //BlindSpot Detection
+ 				EnableTracker ^= 1 << 3; //Toggle BlindSpot Detection enable bit
+ 				break;
+ 		case 6 : //Anti-Roller
+ 				EnableTracker ^= 1 << 2; //Toggle Anti-Roller enable bit
+ 				break;
+ 		case 8 : //Automatic Parallel Parking
+ 				EnableTracker ^= 1 << 1; //Toggle Automatic Parallel Parking enable bit
+ 				break;
+     }
+	 static uint8_t TempArray[2]; // array to pass the two different uint8_t's
+	 TempArray[0] = EnableTracker; //Set enable tracker to TempArray[0]
+	 TempArray[1] = ClearHolds; //Set Clear Holds to TempArray[1]
+	 //PORTC = EnableTracker;
+ 	return(TempArray); //Return the TempArray
 }
